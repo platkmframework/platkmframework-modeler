@@ -45,13 +45,22 @@ export const ModelerMenu = () => {
               <div style={{fontSize:'1.0em'}}>Stock</div>  
               <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', height:'70px' } }} >
                 <Button key="boton_menu_entity-relationship"  style={{fontSize:'0.8em', textTransform:'none'}}
-                      onClick={(event)=>handleSubMenu(event, "/modeler/enitty-relation", "")}  sx={{ my: 2, color: 'white', display: 'block',  }}>Entity Relationship
+                      onClick={(event)=>handleSubMenu(event, "/modeler/entities", "")}  sx={{ my: 2, color: 'white', display: 'block',  }}>Entity Relationship
                 </Button>
                 <Button key="boton_menu_sequence"  style={{fontSize:'0.8em', textTransform:'none'}}
                       onClick={(event)=>handleSubMenu(event, "/modeler/sequence", "")}  sx={{ my: 2, color: 'white', display: 'block',  }}>Sequence
                 </Button>
                 <Button key="boton_menu_bpmn"  style={{fontSize:'0.8em', textTransform:'none'}}
                       onClick={(event)=>handleSubMenu(event, "/modeler/bpmn", "")}  sx={{ my: 2, color: 'white', display: 'block',  }}>BPMN
+                </Button>
+                <Button key="boton_menu_navigation"  style={{fontSize:'0.8em', textTransform:'none'}}
+                      onClick={(event)=>handleSubMenu(event, "/modeler/navigation", "")}  sx={{ my: 2, color: 'white', display: 'block',  }}>Navigation
+                </Button>
+                <Button key="boton_menu_menu"  style={{fontSize:'0.8em', textTransform:'none'}}
+                      onClick={(event)=>handleSubMenu(event, "/modeler/menu", "")}  sx={{ my: 2, color: 'white', display: 'block',  }}>Menu
+                </Button>
+                <Button key="boton_menu_organization_chart"  style={{fontSize:'0.8em', textTransform:'none'}}
+                      onClick={(event)=>handleSubMenu(event, "/modeler/organizationchart", "")}  sx={{ my: 2, color: 'white', display: 'block',  }}>Organization Chart
                 </Button>
               </Box>
               <Box sx={{ flexGrow: 0 }} style={{fontSize:'0.7em', marginRight:'20px'}}> 

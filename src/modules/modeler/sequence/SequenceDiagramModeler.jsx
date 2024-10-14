@@ -1,8 +1,8 @@
 import { Button } from "@mui/material";
 import { createRef, useEffect, useRef, useState } from "react"
 
-import { generateKey } from "./canvasScripts";
-import { drawShapeLineIntersection, drawIntersectionForSourceAndTargetElement} from "./canvasShapeOperations";
+import { generateKey } from "../js/canvasScripts";
+import { drawShapeLineIntersection, drawIntersectionForSourceAndTargetElement} from "../js/canvasShapeOperations";
 
 import { v4 as uuidv4   } from 'uuid';
 
@@ -10,7 +10,7 @@ const C_LINE_TO_SPLIT   = "LINE_TO_SPLIT";
 const C_MOVING_POINT    = "MOVING_POINT";
 const C_CREATE_NEW_LINE = "CREATE_NEW_LINE";
 
-export const NavigationMainPage = () =>{
+export const SequenceDiagramModeler = () =>{
 
     const canvasRef = useRef(null);
     const [viewComponentCount, setViewComponentCount] = useState(-1) 
@@ -24,9 +24,10 @@ export const NavigationMainPage = () =>{
             {x:770-5, y:60 + 80 -5, height:10, width:10, type:'left_bottom'},
             {x:770 + 250-5, y:60 + 80 -5, height:10, width:10, type:'right_bottom'},
         ],
+        verticalLine:{x1:770+125, y1:60, x2:770+125, y2:200},
         incoming:[],
         outgoing:[],
-        properties:{id:'', label:'Navigation Component', type:'NavComponent', menuPath:'', fileName:'', role:''}
+        properties:{id:'', label:'Sequence Diagram', type:'SequenceDiagram', menuPath:'', fileName:'', role:''}
     }
 
     /*    
@@ -133,6 +134,17 @@ export const NavigationMainPage = () =>{
             let shapeSelected = null;
 
             shapeList.map(r=>{
+
+                //if(selectedShapeData.id == r.id){
+                    //vertical line
+                    ctx.beginPath();
+                    ctx.strokeStyle  = 'black';
+                    ctx.moveTo(r.verticalLine.x1, r.verticalLine.y1); 
+                    ctx.lineTo(r.verticalLine.x2, r.verticalLine.y2);
+                    ctx.lineWidth = 2; 
+                    ctx.stroke();  
+               // }
+
                 ctx.beginPath();
                 ctx.fillStyle   = r.color;
                 ctx.strokeStyle = r.color;
@@ -157,6 +169,18 @@ export const NavigationMainPage = () =>{
                         ctx.fillRect(re.x, re.y, re.width, re.height)  
                         ctx.stroke();
                     })
+
+                    //vertical line, create rectangle at the begining and end of the horizontal line
+                    ctx.fillStyle = "black";
+                    ctx.beginPath();
+                    ctx.fillRect(r.verticalLine.x2-5, r.verticalLine.y2, 10, 10)  
+                    ctx.stroke();
+
+                    ctx.fillStyle = "black";
+                    ctx.beginPath();
+                    ctx.fillRect(r.verticalLine.x1-5, r.y + r.height, 10, 10)  
+                    ctx.stroke();
+                    
                 }
             })  
 
@@ -192,6 +216,13 @@ export const NavigationMainPage = () =>{
                 auxSelectedShapeData.type  = r.type;
                 auxSelectedShapeData.mx    = mx - r.x;
                 auxSelectedShapeData.my    = my - r.y;
+            }else if(isPointInLine(mx, my, r.verticalLine.x1, r.verticalLine.y1, r.verticalLine.x2, r.verticalLine.y2)){
+                auxSelectedShapeData.id    = r.id;
+                auxSelectedShapeData.index = i;  
+                auxSelectedShapeData.type  = r.type;
+                auxSelectedShapeData.borderType = 'vertical_line';
+                auxSelectedShapeData.mx    = mx - r.x;
+                auxSelectedShapeData.my    = my - r.y;  
             }else{
                 r.edges.map((ed,j)=>{
                     if(mx >= ed.x && mx <= ed.x + ed.width && my >= ed.y && my <= ed.y + ed.height){
@@ -203,6 +234,8 @@ export const NavigationMainPage = () =>{
                         auxSelectedShapeData.my = my - r.y;
                     }
                 })
+
+
             }
         })
 
@@ -309,6 +342,28 @@ export const NavigationMainPage = () =>{
         }
         return selShapeData
     }
+
+    /**
+     * check if point px,py is in line created 
+     * form x1,y1 and x2,y2
+     * @param {*} px 
+     * @param {*} py 
+     * @param {*} x1 
+     * @param {*} y1 
+     * @param {*} x2 
+     * @param {*} y2 
+     * @returns 
+     */
+    const isPointInLine =(px, py, x1, y1, x2, y2)=>{
+        const ctx = canvasRef.current.getContext('2d')
+        const path = new Path2D();
+        path.lineTo(x1, y1);
+        path.lineTo(x2, y2);
+        ctx.lineWidth = 5;
+        return ctx.isPointInStroke(path, px, py);
+    }
+
+
 // END search for element selected
 
     //----------------------------- END main functions-------
@@ -501,8 +556,13 @@ export const NavigationMainPage = () =>{
                 if(selectedShapeData.borderType == ''){ 
 
                     shapesAux[selectedShapeData.index].x = mx - selectedShapeData.mx
-                    shapesAux[selectedShapeData.index].y = my - selectedShapeData.my
-                
+                    shapesAux[selectedShapeData.index].y = 60 ; // my - selectedShapeData.my
+
+                    shapesAux[selectedShapeData.index].verticalLine.x1 = shapesAux[selectedShapeData.index].x + shapesAux[selectedShapeData.index].width/2;
+                    shapesAux[selectedShapeData.index].verticalLine.y1 = 60
+                    shapesAux[selectedShapeData.index].verticalLine.x2 = shapesAux[selectedShapeData.index].verticalLine.x1
+                    shapesAux[selectedShapeData.index].verticalLine.y2 = 400
+
                 }else{
 
                     shapesAux[selectedShapeData.index].edges = shapesAux[selectedShapeData.index].edges.filter(re=>{
@@ -641,7 +701,7 @@ export const NavigationMainPage = () =>{
 
                     let sourceElem = shapes[startLinePoint.incomingIndex]
                     let targetElem = shapes[elementSelected.index]
- 
+ console.log(elementSelected)
                     // ctx.moveTo(sourceElem.x + (sourceElem.width/2), sourceElem.y + (sourceElem.height/2));  
 
                     const lineId = getNextUniqueId('line_')
@@ -1025,7 +1085,9 @@ export const NavigationMainPage = () =>{
 
  
     return (<> 
+    
         <div className="alert alert-primary" role="alert">
+            <div>Sequence diagram</div>
             <span><Button onClick={(event)=>{addNavHandElementHandler(event)}}>Hand</Button></span>
             <span><Button onClick={(event)=>{addNaveElementHandler(event)}}>Agregar</Button></span>
             <span><Button onClick={(event)=>{navStartLineElementHandler(event)}}>Linea</Button></span>
@@ -1038,10 +1100,10 @@ export const NavigationMainPage = () =>{
         </div>
         <div>
             <canvas id="canvas"  ref={canvasRef} width="1200" height="1200"  
-            onMouseMove={(event)=>canvasOnMouseMove(event)}
             onMouseDown={(event)=>canvasOnMouseDown(event)} 
+            onMouseMove={(event)=>canvasOnMouseMove(event)}
             onMouseUp={(event)=>canvasOnMouseUp(event)}
-            onDoubleClick={(event) => canvasOnDblclick(event) }> 
+            onDoubleClick={(event)=>canvasOnDblclick(event) }> 
             </canvas>
         </div>
     </>)
